@@ -5,13 +5,13 @@ on: [ push ]
 jobs:
   test:
     strategy:
-      max-parallel: 4
       fail-fast: true
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         java_version: [ 16, 17, 18 ]
         java_dist: [ adopt-hotspot, adopt-openj9, temurin, zulu, corretto ]
     runs-on: ${{ matrix.os }}
+    concurrency: ${{ matrix.os }}-java-${{ matrix.java_version }}
 
     steps:
       - uses: actions/checkout@v3
