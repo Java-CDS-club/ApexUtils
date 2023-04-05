@@ -8,7 +8,7 @@ jobs:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         java_version: [ 16, 17, 18 ]
-        java_dist: [ adopt-hoptspot, adopt-openj9, temurin, zulu, corretto, oracle ]
+        java_dist: [ adopt-hotspot, adopt-openj9, temurin, zulu, corretto, oracle ]
     runs-on: ${{ matrix.os }}
 
     steps:
