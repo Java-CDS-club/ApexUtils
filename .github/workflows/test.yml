@@ -1,0 +1,23 @@
+name: Java CI Testing (JUnit)
+
+on: [ push ]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        java_version: [ 16, 17, 18 ]
+        java_dist: [ adopt-hoptspot, adopt-openj9, temurin, zulu, corretto, oracle ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: ${{ matrix.java_dist }}
+          java-version: ${{ matrix.java_version }}
+          cache: 'gradle'
+      - if: ${{ matrix.os }} != 'windows-latest'
+        run: chmod +x ./gradlew
+      - run: ./gradlew test --no-daemon
