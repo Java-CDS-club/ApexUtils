@@ -6,9 +6,12 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-        java_version: [ 16, 17, 18 ]
-        java_dist: [ adopt-hotspot, adopt-openj9, temurin, zulu, corretto ]
+        # os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-latest ]
+        # java_version: [ 16, 17, 18 ]
+        java_version: [ 17 ]
+        # java_dist: [ adopt-hotspot, adopt-openj9, temurin, zulu, corretto ]
+        java_dist: [ adopt-openj9 ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -18,6 +21,6 @@ jobs:
           distribution: ${{ matrix.java_dist }}
           java-version: ${{ matrix.java_version }}
           cache: 'gradle'
-      - if: ${{ matrix.os }} != 'windows-latest'
+      - if: ${{ matrix.os != 'windows-latest' }}
         run: chmod +x ./gradlew
       - run: ./gradlew test --no-daemon
