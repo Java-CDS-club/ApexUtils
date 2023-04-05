@@ -1,0 +1,196 @@
+plugins {
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1' apply false
+    id 'com.palantir.git-version' version '1.0.0' apply false
+    id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
+}
+
+allprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
+}
+
+project(':') {
+    apply plugin: 'com.palantir.git-version'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    ext {
+        REPO = versionDetails()
+        JAVA_VERSION = '17'
+        VERSION = "1.0.${REPO.commitDistance}"
+        BASE_GROUP = 'xyz.apex.utils'
+
+        // same version numbers as minecraft-1.19.4
+        // as thats where this library will mainly be used
+        // and all these dependencies already exist there (no need to shadow them)
+        JSR305_VERSION = '3.0.2'
+        GSON_VERSION = '2.10'
+        ERROR_PRONE_VERSION = '2.11.0'
+        GUAVA_VERSION = '31.1-jre'
+        COMMONS_IO_VERSION = '2.11.0'
+        LANG3_VERSION = '3.12.0'
+        LOG4J_VERSION = '2.19.0'
+        JETBRAINS_ANONTATIONS_VERSION = '23.0.0'
+        JOML_VERSION = '1.10.5'
+        SLF4J_API_VERSION = '2.0.1'
+        SLF4J_VERSION = '1.7.30'
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = [ ]
+            resources.srcDirs = [ ]
+        }
+
+        test {
+            java.srcDirs = [ ]
+            resources.srcDirs = [ ]
+        }
+    }
+
+    archivesBaseName = 'apexutils'
+
+    dependencies {
+        subprojects.each {
+            shadow it
+        }
+    }
+
+    shadowJar {
+        classifier ''
+        configurations = [ project.configurations.shadow ]
+    }
+
+    artifacts {
+        archives shadowJar
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifact shadowJar
+            }
+        }
+    }
+
+    idea.module {
+        excludeDirs += [
+                file('.gradle'),
+                file('.idea'),
+                file('gradle')
+        ]
+    }
+}
+
+subprojects {
+    archivesBaseName = "${project.name}"
+}
+
+allprojects {
+    apply plugin: 'idea'
+
+    group = "${rootProject.BASE_GROUP}"
+    version = "${rootProject.VERSION}"
+    println "${project.path} -> ${project.group}:${project.archivesBaseName}:${project.version}"
+
+    repositories {
+        mavenCentral()
+        maven { url 'https://maven.covers1624.net/' }
+    }
+
+    dependencies {
+        implementation "com.google.code.findbugs:jsr305:${rootProject.JSR305_VERSION}"
+        implementation "com.google.code.gson:gson:${rootProject.GSON_VERSION}"
+        implementation "com.google.errorprone:error_prone_annotations:${rootProject.ERROR_PRONE_VERSION}"
+        implementation "com.google.guava:guava:${rootProject.GUAVA_VERSION}"
+        implementation "commons-io:commons-io:${rootProject.COMMONS_IO_VERSION}"
+        implementation "org.apache.commons:commons-lang3:${rootProject.LANG3_VERSION}"
+        implementation "org.apache.logging.log4j:log4j-api:${rootProject.LOG4J_VERSION}"
+        implementation "org.apache.logging.log4j:log4j-core:${rootProject.LOG4J_VERSION}"
+        implementation "org.apache.logging.log4j:log4j-slf4j2-impl:${rootProject.LOG4J_VERSION}"
+        implementation "org.jetbrains:annotations:${rootProject.JETBRAINS_ANONTATIONS_VERSION}"
+        implementation "org.joml:joml:${rootProject.JOML_VERSION}"
+        implementation "org.slf4j:slf4j-api:${rootProject.SLF4J_API_VERSION}"
+        implementation "org.slf4j:slf4j-simple:${rootProject.SLF4J_VERSION}"
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release.set(JavaLanguageVersion.of("${rootProject.JAVA_VERSION}").asInt())
+
+        javaToolchains {
+            compilerFor {
+                languageVersion.set(JavaLanguageVersion.of("${rootProject.JAVA_VERSION}"))
+            }
+        }
+    }
+
+    tasks.withType(Jar).configureEach {
+        from file('LICENSE')
+
+        manifest {
+            attributes([
+                    'Specification-Title' : "${project.archivesBaseName}",
+                    'Specification-Vendor' : 'ApexStudios',
+                    'Specification-Version' : "${rootProject.VERSION}",
+                    'Implementation-Title' : "${project.archivesBaseName}",
+                    'Implementation-Version' : "${rootProject.VERSION}",
+                    'Implementation-Vendor' : 'ApexStudios',
+                    'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            ])
+        }
+    }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of("${JAVA_VERSION}"))
+        }
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId = "${project.group}"
+                artifactId = "${project.archivesBaseName}"
+                version = "${rootProject.VERSION}"
+            }
+        }
+
+        repositories {
+            if(System.getenv('MAVEN_PASSWORD') != null) {
+                maven {
+                    name 'Covers1624-Maven'
+                    url 'https://nexus.covers1624.net/repository/apex-releases/'
+
+                    credentials {
+                        username 'apex'
+                        password System.getenv('MAVEN_PASSWORD')
+                    }
+                }
+            }
+        }
+    }
+}
+
+subprojects {
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    artifacts {
+        archives jar
+        archives sourcesJar
+        archives javadocJar
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifact jar
+                artifact sourcesJar
+                artifact javadocJar
+            }
+        }
+    }
+}

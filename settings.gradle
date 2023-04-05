@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url 'https://maven.minecraftforge.net' }
+    }
+}
+
+includeModule 'core'
+includeModule 'config'
+includeModule 'events'
+
+def includeModule(String name) {
+    if(file("modules/${name}/build.gradle").exists()) {
+        include name
+        project(":${name}").projectDir = file("modules/${name}")
+    }
+}
+
+rootProject.name = 'ApexUtils'

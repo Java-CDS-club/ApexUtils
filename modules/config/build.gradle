@@ -1,0 +1,30 @@
+sourceSets {
+    events {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.runtimeClasspath
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    eventsImplementation project(':events')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom.withXml {
+                def depsNode = asNode().appendNode('dependencies')
+                def depNode = depsNode.appendNode('dependency')
+                def core = project(':core')
+                depNode.appendNode('groupId', core.group)
+                depNode.appendNode('artifactId', core.archivesBaseName)
+                depNode.appendNode('version', core.version)
+                depNode.appendNode('scope', 'compile')
+            }
+        }
+    }
+}
