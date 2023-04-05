@@ -12,8 +12,8 @@ import java.nio.file.Path;
  */
 public interface ApexUtils
 {
-    ApexUtils INSTANCE = ServiceHelper.singleton(ApexUtils.class, DummyApexUtils::new);
     Logger LOGGER = LogManager.getLogger();
+    ApexUtils INSTANCE = ServiceHelper.singleton(ApexUtils.class, DummyApexUtils::new);
 
     /**
      * Returns the root path for ApexUtils.

@@ -2,6 +2,7 @@ package xyz.apex.utils.config;
 
 import com.google.common.collect.Maps;
 import com.google.gson.*;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import xyz.apex.utils.core.ApexUtils;
 
@@ -32,8 +33,8 @@ final class ConfigImpl implements Config
 
     ConfigImpl(String filePath)
     {
-        this.filePath = filePath;
-        path = ApexUtils.INSTANCE.configsDir().resolve(filePath);
+        this.filePath = StringUtils.appendIfMissingIgnoreCase(filePath, FILE_EXT);
+        path = ApexUtils.INSTANCE.configsDir().resolve(this.filePath);
     }
 
     <T> void registerFromBuilder(ConfigValue<T> configValue)

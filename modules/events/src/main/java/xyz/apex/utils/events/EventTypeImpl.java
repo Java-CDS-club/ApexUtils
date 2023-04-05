@@ -2,6 +2,7 @@ package xyz.apex.utils.events;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.jetbrains.annotations.VisibleForTesting;
 import xyz.apex.utils.core.ApexUtils;
 
 import java.lang.reflect.Constructor;
@@ -17,7 +18,8 @@ final class EventTypeImpl<E extends Event> implements EventType<E>
 
     private final Class<E> classType;
     private final Constructor<E> constructor;
-    private final List<Consumer<E>> listeners = Lists.newLinkedList();
+    @VisibleForTesting
+    public final List<Consumer<E>> listeners = Lists.newLinkedList();
 
     EventTypeImpl(Class<E> classType, Class<?>... argTypes)
     {

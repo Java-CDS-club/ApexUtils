@@ -14,6 +14,13 @@ import java.util.function.BiConsumer;
 public sealed interface Config extends Iterable<Map.Entry<String, ConfigValue<?>>> permits ConfigImpl
 {
     /**
+     * File extension for config files.
+     * <p>
+     * Configs must be saved in this format suing UTF8 encoding.
+     */
+    String FILE_EXT = ".json";
+
+    /**
      * @return The relative file path.
      */
     String filePath();
