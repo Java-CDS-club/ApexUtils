@@ -1,0 +1,8 @@
+{
+	"hello": "world",
+	"funny": 69,
+	"some_config": "some_value",
+	"i_am_a_bool": true,
+	"i_am_a_double": 1.0,
+	"i_am_a_float": 1.0
+}

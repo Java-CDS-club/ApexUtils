@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 
 public final class ConfigApexUtilsTest implements ApexUtils
 {
-    private final Path root = Paths.get("./run/testing/");
+    private final Path root = Paths.get("./src/test/resources/run/testing/");
     private final Path configDir = root.resolve("config");
 
     @Override
